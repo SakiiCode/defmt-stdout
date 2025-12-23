@@ -1,0 +1,1 @@
+$1 | defmt-print -e $1
