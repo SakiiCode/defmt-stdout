@@ -8,10 +8,6 @@ use defmt::{Encoder, Logger};
 #[defmt::global_logger]
 struct StdLogger;
 
-defmt::timestamp! {
-    "0"
-}
-
 struct StdLoggerRef {
     lock: Option<StdoutLock<'static>>,
 }
@@ -66,5 +62,12 @@ unsafe impl Logger for StdLogger {
 fn write_callback(lock: &mut StdoutLock<'static>) -> impl FnMut(&[u8]) {
     |bytes| {
         lock.write(bytes).expect("Could not write to stdout");
+    }
+}
+
+mod test {
+    #[test]
+    fn test_info(){
+        defmt::info!("This is an info");
     }
 }

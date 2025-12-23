@@ -1,1 +1,2 @@
-$1 | defmt-print -e $1
+#!/bin/sh
+$@ | defmt-print -e $1
