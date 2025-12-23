@@ -2,6 +2,12 @@
 name = "defmt-stdout"
 version = "0.1.0"
 edition = "2024"
+license="MIT"
+description="Transmit defmt log messages to the standard output (Linux only)"
+repository = "https://github.com/SakiiCode/defmt-stdout"
+readme = "README.md"
+categories=["command-line-interface", "embedded", "simulation"]
+keywords=["defmt", "stdout", "simulator"]
 
 [lib]
 path = "src/lib.rs"
