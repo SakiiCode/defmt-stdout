@@ -31,6 +31,12 @@ $@ | defmt-print -e $1
 
 This way `cargo run` will be automatically piped into `defmt-print`
 
+`main.rs`
+
+```rust
+use defmt_stdout as _;
+```
+
 
 ## References
 
