@@ -8,7 +8,7 @@ Forwards defmt frames to the standard output to make it usable on Linux desktops
 
 ```toml
 [build]
-target = "x86_64-unknown-linux-gnu"
+target = "x86_64-unknown-linux-gnu" # or -musl
 
 [target.x86_64-unknown-linux-gnu]
 rustflags = [
@@ -49,7 +49,6 @@ This way `cargo run` will be automatically piped into `defmt-print`
 ```rust
 use defmt_stdout as _;
 ```
-
 
 ## References
 

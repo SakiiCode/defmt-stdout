@@ -1,3 +1,4 @@
+#![doc = include_str!("../README.md")]
 use std::{
     io::{StdoutLock, Write, stdout},
     sync::Mutex,
@@ -67,7 +68,7 @@ fn write_callback(lock: &mut StdoutLock<'static>) -> impl FnMut(&[u8]) {
 
 mod test {
     #[test]
-    fn test_info(){
+    fn test_info() {
         defmt::info!("This is an info");
     }
 }
