@@ -29,6 +29,10 @@ DEFMT_LOG = "trace"
 $@ | defmt-print -e $1
 ```
 
+```sh
+chmod +x runner.sh
+```
+
 This way `cargo run` will be automatically piped into `defmt-print`
 
 `main.rs`
