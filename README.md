@@ -8,7 +8,16 @@ Forwards defmt frames to the standard output to make it usable on Linux desktops
 
 ```toml
 [build]
-target = "x86_64-unknown-linux-musl"
+target = "x86_64-unknown-linux-gnu"
+
+[target.x86_64-unknown-linux-gnu]
+rustflags = [
+  "-C", "relocation-model=static",
+  "-C", "link-arg=-T/usr/lib/x86_64-linux-gnu/ldscripts/elf_x86_64.x",
+  "-C", "link-arg=-Tdefmt.x"
+]
+linker = "gcc"
+runner = "./runner.sh"
 
 [target.x86_64-unknown-linux-musl]
 rustflags = [
