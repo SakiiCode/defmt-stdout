@@ -9,19 +9,19 @@ use defmt::{Encoder, Logger};
 #[defmt::global_logger]
 struct StdLogger;
 
-struct StdLoggerRef {
+struct StdLockRef {
     lock: Option<StdoutLock<'static>>,
 }
 
-impl StdLoggerRef {
+impl StdLockRef {
     pub const fn new() -> Self {
         Self { lock: None }
     }
 }
 
-unsafe impl Send for StdLoggerRef {}
+unsafe impl Send for StdLockRef {}
 
-static LOGGER: Mutex<StdLoggerRef> = Mutex::new(StdLoggerRef::new());
+static LOGGER: Mutex<StdLockRef> = Mutex::new(StdLockRef::new());
 static ENCODER: Mutex<Encoder> = Mutex::new(Encoder::new());
 
 unsafe impl Logger for StdLogger {
@@ -44,13 +44,15 @@ unsafe impl Logger for StdLogger {
         LOGGER
             .lock()
             .ok()
-            .and_then(|mut logger| logger.lock.as_mut().and_then(|lock| lock.flush().ok()));
+            .and_then(|mut logger| logger.lock.as_mut()?.flush().ok());
     }
     unsafe fn release() {
         let mut logger = LOGGER.lock().expect("Mutex holder panicked");
         let mut lock = logger.lock.take().expect("Missing lock at release");
 
         ENCODER.lock().unwrap().end_frame(write_callback(&mut lock));
+
+        lock.flush().ok();
     }
     unsafe fn write(bytes: &[u8]) {
         let mut logger = LOGGER.lock().expect("Mutex holder panicked");
