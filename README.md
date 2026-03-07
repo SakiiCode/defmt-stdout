@@ -10,25 +10,21 @@ Forwards defmt frames to the standard output to make it usable on Linux desktops
 [build]
 target = "x86_64-unknown-linux-gnu" # or -musl
 
-[target.x86_64-unknown-linux-gnu]
+[target.'cfg(target_os="linux")']
 rustflags = [
-  "-C", "relocation-model=static",
-  "-C", "link-arg=-T/usr/lib/x86_64-linux-gnu/ldscripts/elf_x86_64.x",
-  "-C", "link-arg=-Tdefmt.x"
+  "-C",
+  "relocation-model=static",
+  "-C",
+  "link-arg=-T/usr/lib/x86_64-linux-gnu/ldscripts/elf_x86_64.x",
+  "-C",
+  "link-arg=-Tdefmt.x"
 ]
 linker = "gcc"
 runner = "./runner.sh"
 
-[target.x86_64-unknown-linux-musl]
-rustflags = [
-  "-C", "relocation-model=static",
-  "-C", "link-arg=-T/usr/lib/x86_64-linux-gnu/ldscripts/elf_x86_64.x",
-  "-C", "link-arg=-Tdefmt.x"
-]
-runner = "./runner.sh"
-
 [env]
 DEFMT_LOG = "trace"
+
 ```
 
 `runner.sh`
@@ -46,7 +42,7 @@ This way `cargo run` will be automatically piped into `defmt-print`
 
 `main.rs`
 
-```rust
+```rust,ignore
 use defmt_stdout as _;
 ```
 
