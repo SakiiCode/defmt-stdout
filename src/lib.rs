@@ -68,9 +68,16 @@ fn write_callback(lock: &mut StdoutLock<'static>) -> impl FnMut(&[u8]) {
     }
 }
 
-mod test {
+#[cfg(test)]
+mod tests {
+    use assert_cmd::Command;
+
     #[test]
     fn test_info() {
-        defmt::info!("This is an info");
+        let mut cmd = Command::new("cargo");
+        cmd.args(&["run", "--example", "basic", "-q"]);
+        let stdout = cmd.unwrap().stdout;
+        let output = String::from_utf8_lossy(&stdout).to_string();
+        defmt::assert_eq!(output.as_str(), "INFO  This is an info\n");
     }
 }
