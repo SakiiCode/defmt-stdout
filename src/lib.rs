@@ -26,7 +26,7 @@ static ENCODER: Mutex<Encoder> = Mutex::new(Encoder::new());
 
 unsafe impl Logger for StdLogger {
     fn acquire() {
-        let mut logger = LOGGER.lock().expect("Mutex holder panicked");
+        let mut logger = LOGGER.lock().expect("Logger mutex holder panicked");
         if logger.lock.is_some() {
             panic!("Stdout lock already acquired");
         }
@@ -35,7 +35,7 @@ unsafe impl Logger for StdLogger {
 
         ENCODER
             .lock()
-            .expect("Could not lock ENCODER")
+            .expect("Encoder mutex holder panicked")
             .start_frame(write_callback(&mut lock));
 
         logger.lock = Some(lock);
@@ -47,18 +47,24 @@ unsafe impl Logger for StdLogger {
             .and_then(|mut logger| logger.lock.as_mut()?.flush().ok());
     }
     unsafe fn release() {
-        let mut logger = LOGGER.lock().expect("Mutex holder panicked");
+        let mut logger = LOGGER.lock().expect("Logger mutex holder panicked");
         let mut lock = logger.lock.take().expect("Missing lock at release");
 
-        ENCODER.lock().unwrap().end_frame(write_callback(&mut lock));
+        ENCODER
+            .lock()
+            .expect("Encoder mutex holder panicked")
+            .end_frame(write_callback(&mut lock));
 
         lock.flush().ok();
     }
     unsafe fn write(bytes: &[u8]) {
-        let mut logger = LOGGER.lock().expect("Mutex holder panicked");
+        let mut logger = LOGGER.lock().expect("Logger mutex holder panicked");
         let lock = logger.lock.as_mut().expect("Missing lock at write");
 
-        ENCODER.lock().unwrap().write(bytes, write_callback(lock));
+        ENCODER
+            .lock()
+            .expect("Encoder mutex holder panicked")
+            .write(bytes, write_callback(lock));
     }
 }
 
