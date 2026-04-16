@@ -1,7 +1,7 @@
 #![doc = include_str!("../README.md")]
 use std::{
     io::{StdoutLock, Write, stdout},
-    sync::Mutex,
+    sync::{Condvar, Mutex},
 };
 
 use defmt::{Encoder, Logger};
@@ -25,14 +25,16 @@ impl StdLockRef {
 
 unsafe impl Send for StdLockRef {}
 
-static LOGGER: Mutex<StdLockRef> = Mutex::new(StdLockRef::new());
+static LOGGER: (Mutex<StdLockRef>, Condvar) = (Mutex::new(StdLockRef::new()), Condvar::new());
 
 unsafe impl Logger for StdLogger {
     fn acquire() {
-        let StdLockRef { lock, encoder } = &mut *LOGGER.lock().expect("Mutex holder panicked");
-        if lock.is_some() {
-            panic!("Stdout lock already acquired");
+        let mut guard = LOGGER.0.lock().expect("Mutex holder panicked");
+        while guard.lock.is_some() {
+            guard = LOGGER.1.wait(guard).unwrap();
         }
+
+        let StdLockRef { lock, encoder } = &mut *guard;
 
         let mut new_lock = stdout().lock();
 
@@ -42,20 +44,22 @@ unsafe impl Logger for StdLogger {
     }
     unsafe fn flush() {
         LOGGER
+            .0
             .lock()
             .ok()
             .and_then(|mut logger| logger.lock.as_mut()?.flush().ok());
     }
     unsafe fn release() {
-        let StdLockRef { lock, encoder } = &mut *LOGGER.lock().expect("Mutex holder panicked");
+        let StdLockRef { lock, encoder } = &mut *LOGGER.0.lock().expect("Mutex holder panicked");
         let mut lock = lock.take().expect("Missing lock at release");
 
         encoder.end_frame(write_callback(&mut lock));
 
         lock.flush().ok();
+        LOGGER.1.notify_one();
     }
     unsafe fn write(bytes: &[u8]) {
-        let StdLockRef { lock, encoder } = &mut *LOGGER.lock().expect("Mutex holder panicked");
+        let StdLockRef { lock, encoder } = &mut *LOGGER.0.lock().expect("Mutex holder panicked");
         let lock = lock.as_mut().expect("Missing lock at write");
 
         encoder.write(bytes, write_callback(lock));
