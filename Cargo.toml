@@ -14,7 +14,7 @@ doctest = false
 path = "src/lib.rs"
 
 [dependencies]
-defmt = "1.0.1"
+defmt = "1.0.0"
 
 [dev-dependencies]
-assert_cmd = "2.1.2"
+assert_cmd = "2.2.0"
