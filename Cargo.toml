@@ -2,7 +2,7 @@
 name = "defmt-stdout"
 version = "0.1.2"
 edition = "2024"
-description = "Transmit defmt log messages to the standard output (Linux only)"
+description = "Transmit defmt log messages to the standard output (Linux only, x86_64 and aarch64)"
 readme = "README.md"
 repository = "https://github.com/SakiiCode/defmt-stdout"
 license = "MIT"
