@@ -6,11 +6,7 @@ fn main() {
             defmt::info!("This is an info");
         }
     });
-
-    std::thread::spawn(|| {
-        loop {
-            defmt::warn!("This is a warning");
-        }
-    });
-    loop {}
+    loop {
+        defmt::warn!("This is a warning");
+    }
 }
