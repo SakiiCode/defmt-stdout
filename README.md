@@ -2,34 +2,37 @@
 
 Forwards defmt frames to the standard output to make it usable on Linux desktops.
 
-Supports `x86_64-unknown-linux-gnu` and `aarch64-unknown-linux-gnu`.
+Supported targets:
+
+- `x86_64-unknown-linux-gnu`
+- `x86_64-unknown-linux-musl`
+- `aarch64-unknown-linux-gnu`
+- `aarch64-unknown-linux-musl`
 
 ## Requirements
 
 `.cargo/config.toml`
 
 ```toml
-# Pick the line that matches your host:
 [build]
-target = "x86_64-unknown-linux-gnu"   # or "aarch64-unknown-linux-gnu"
+target = "host-tuple"  # substituted automatically, no need to modify
 
-[target.x86_64-unknown-linux-gnu]
+[target.'cfg(target_os="linux")']
+rustflags = ["-C", "relocation-model=static", "-C", "link-arg=-Tdefmt.x"]
 linker = "gcc"
-rustflags = [
-  "-C", "relocation-model=static",
-  "-C", "link-arg=-T/usr/lib/x86_64-linux-gnu/ldscripts/elf_x86_64.x",
-  "-C", "link-arg=-Tdefmt.x",
-]
 runner = "./runner.sh"
 
-[target.aarch64-unknown-linux-gnu]
-linker = "gcc"
+[target.'cfg(target_arch="x86_64")']
 rustflags = [
-  "-C", "relocation-model=static",
-  "-C", "link-arg=-T/usr/lib/aarch64-linux-gnu/ldscripts/aarch64linux.x",
-  "-C", "link-arg=-Tdefmt.x",
+  "-C",
+  "link-arg=-T/usr/lib/x86_64-linux-gnu/ldscripts/elf_x86_64.x",
 ]
-runner = "./runner.sh"
+
+[target.'cfg(target_arch="aarch64")']
+rustflags = [
+  "-C",
+  "link-arg=-T/usr/lib/aarch64-linux-gnu/ldscripts/aarch64linux.x",
+]
 
 [env]
 DEFMT_LOG = "trace"
