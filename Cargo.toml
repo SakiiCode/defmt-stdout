@@ -1,6 +1,6 @@
 [package]
 name = "defmt-stdout"
-version = "0.1.3"
+version = "0.1.4"
 edition = "2024"
 description = "Transmit defmt log messages to the standard output (Linux only, x86_64 and aarch64)"
 readme = "README.md"
